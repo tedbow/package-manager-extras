@@ -1,0 +1,7 @@
+pme.install:
+  path: '/admin/config/pme/install'
+  defaults:
+      _form: '\Drupal\pme\Form\InstallForm'
+      _title: 'Install Projects'
+  requirements:
+    _permission: 'administer administer software updates'

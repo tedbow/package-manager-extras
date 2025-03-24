@@ -1,0 +1,7 @@
+name: 'Package Manager Extras'
+type: module
+description: 'Provides extra functionalities for package management.'
+core_version_requirement: ^10 || ^11
+package: Custom
+dependencies:
+  - drupal:package_manager (>=8.8.0)

@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    autowire: true
+  logger.channel.pme:
+    parent: logger.channel_base
+    arguments: [ 'pme' ]
+  Drupal\pme\InstallerStage:
+    calls:
+      - ['setLogger', ['@logger.channel.pme']]
