@@ -6,6 +6,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\package_manager\Exception\StageEventException;
+use Drupal\package_manager\LegacyVersionUtility;
 use Drupal\package_manager\ProjectInfo;
 use Drupal\package_manager\StageBase;
 use Drupal\pme\InstallerStage;
@@ -88,12 +89,17 @@ class InstallForm extends StageFormBase {
     }
     $install_release = reset($releases);
     $version = $install_release->getVersion();
+    $version = LegacyVersionUtility::convertToSemanticVersion($version);
     $package_name = "drupal/$project_name:$version";
     try {
       $this->stage->create();
       $this->stage->require([$package_name]);
       $this->stage->apply();
+      // Post apply should be run in a separate request. Running in same request here for simplicity.
+      // @see \Drupal\automatic_updates\BatchProcessor::postApply().
+      $this->stage->postApply();
       $this->messenger()->addMessage($this->t('The project %project has been installed.', ['%project' => $project_name]));
+      $this->logger('pme')->notice('The project %project has been installed.', ['%project' => $project_name]);
     }
     catch (StageEventException $exception) {
       $this->messenger()->addError($exception->getMessage());
