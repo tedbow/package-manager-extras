@@ -66,6 +66,7 @@ class UninstallForm extends StageFormBase {
       '#type' => 'checkboxes',
       '#title' => 'Uninstall',
       '#options' => $uninstallable_packages,
+      '#required' => TRUE,
     ];
     // Add a submit button.
     $form['submit'] = [
