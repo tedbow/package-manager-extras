@@ -7,3 +7,6 @@ services:
   Drupal\pme\InstallerStage:
     calls:
       - ['setLogger', ['@logger.channel.pme']]
+  Drupal\pme\UninstallStage :
+    calls:
+      - [ 'setLogger', [ '@logger.channel.pme' ]]
