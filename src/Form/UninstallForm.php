@@ -10,13 +10,14 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\package_manager\ComposerInspector;
 use Drupal\package_manager\Exception\StageEventException;
 use Drupal\package_manager\PathLocator;
+use Drupal\package_manager\StageBase;
 use Drupal\pme\UninstallStage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class UninstallForm extends FormBase {
+class UninstallForm extends StageFormBase {
 
 
-  public function __construct(private ComposerInspector $composerInspector, private PathLocator $pathLocator, private UninstallStage $stage, private ModuleExtensionList $extensionList, private ModuleHandler $moduleHandler) {
+  public function __construct(private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator, protected readonly StageBase $stage, private readonly ModuleExtensionList $extensionList, private readonly ModuleHandler $moduleHandler) {
 
   }
 
@@ -39,6 +40,9 @@ class UninstallForm extends FormBase {
 
   public function buildForm(array $form, FormStateInterface $form_state)
   {
+    if ($cancelForm = $this->getCancelForm()) {
+      return $cancelForm;
+    }
     $modules = $this->extensionList->getList();
     $packageList = $this->composerInspector->getInstalledPackagesList($this->pathLocator->getProjectRoot());
     $uninstallable_packages = [];

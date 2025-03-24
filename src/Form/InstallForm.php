@@ -7,13 +7,14 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\package_manager\Exception\StageEventException;
 use Drupal\package_manager\ProjectInfo;
+use Drupal\package_manager\StageBase;
 use Drupal\pme\InstallerStage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class InstallForm extends FormBase {
+class InstallForm extends StageFormBase {
 
 
-  public function __construct(private InstallerStage $stage)
+  public function __construct(protected readonly StageBase $stage)
   {
   }
 
@@ -31,18 +32,8 @@ class InstallForm extends FormBase {
 
   public function buildForm(array $form, FormStateInterface $form_state)
   {
-    if (!$this->stage->isAvailable()) {
-      $form['message'] = [
-        '#markup' => $this->t('The installer stage is not available.'),
-      ];
-      // Add cancel button.
-      $form['cancel'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Cancel'),
-        '#submit' => ['::cancelForm'],
-        '#limit_validation_errors' => [],
-      ];
-      return $form;
+    if ($cancelForm = $this->getCancelForm()) {
+      return $cancelForm;
     }
     // Create a text input for project name.
     $form['project'] = [
@@ -110,11 +101,6 @@ class InstallForm extends FormBase {
 
     $this->stage->destroy();
 
-  }
-
-  public function cancelForm(): void {
-    $this->stage->destroy(TRUE);
-    $this->messenger()->addMessage($this->t('The current operation has been canceled.'));
   }
 
 }
