@@ -1,0 +1,11 @@
+pme.install_tab:
+  route_name: pme.install
+  title: 'Install Projects'
+  base_route: system.modules_list
+  weight: 50
+
+pme.uninstall_tab:
+  route_name: pme.uninstall
+  title: 'Uninstall Projects'
+  base_route: system.modules_list
+  weight: 60

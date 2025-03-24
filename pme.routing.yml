@@ -1,5 +1,5 @@
 pme.install:
-  path: '/admin/admin/modules/pme-install'
+  path: '/admin/modules/pme-install'
   defaults:
       _form: '\Drupal\pme\Form\InstallForm'
       _title: 'Install Projects'
@@ -7,7 +7,7 @@ pme.install:
     _permission: 'administer software updates'
 
 pme.uninstall:
-  path: '/admin/admin/modules/pme-uninstall'
+  path: '/admin/modules/pme-uninstall'
   defaults:
     _form: '\Drupal\pme\Form\UninstallForm'
     _title: 'Install Projects'
