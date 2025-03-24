@@ -78,16 +78,20 @@ class UninstallForm extends StageFormBase {
 
   public function submitForm(array &$form, FormStateInterface $form_state)
   {
+    $packages = $form_state->getValue('uninstall');
+    $packages = array_filter($packages);
+    // @todo Determine if any of these packages will fail to be uninstalled
+    //   because they are required by other packages.
     try {
       $this->stage->create();
-      $this->stage->uninstall($form_state->getValue('uninstall'));
+      $this->stage->uninstall($packages);
       $this->stage->apply();
       // Post apply should be run in a separate request. Running in same request here for simplicity.
       // @see \Drupal\automatic_updates\BatchProcessor::postApply().
       $this->stage->postApply();
       $this->messenger()->addMessage($this->t('Packages uninstalled'));
     }
-    catch (StageEventException $exception) {
+    catch (\Throwable $exception) {
       $this->messenger()->addError($exception->getMessage());
     }
     $this->stage->destroy();
