@@ -14,18 +14,9 @@ namespace Drupal\pme;
  */
 final class BatchProcessor {
 
-  /**
-   * The session key under which the stage ID is stored.
-   *
-   * @var string
-   */
+
   public const STAGE_ID_SESSION_KEY = '_pme_stage_id';
 
-  /**
-   * Gets the update stage service.
-   *
-   * @return \Drupal\pme\InstallerStage
-   */
   private static function getStage(): InstallerStage {
     return \Drupal::service(InstallerStage::class);
   }
