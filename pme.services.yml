@@ -13,3 +13,6 @@ services:
   Drupal\pme\EventSubscriber\UpdateInfo:
     tags:
       - { name: event_subscriber }
+  Drupal\pme\EventSubscriber\ProjectBrowserValidator:
+    tags:
+      - { name: event_subscriber }
