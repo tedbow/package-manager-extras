@@ -3,30 +3,27 @@
 namespace Drupal\pme\Form;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Batch\BatchBuilder;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\package_manager\ComposerInspector;
-use Drupal\package_manager\Exception\StageEventException;
 use Drupal\package_manager\LegacyVersionUtility;
 use Drupal\package_manager\PathLocator;
 use Drupal\package_manager\ProjectInfo;
 use Drupal\package_manager\StageBase;
+use Drupal\pme\BatchProcessor;
 use Drupal\pme\InstallerStage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a very simple form for installing a project.
- *
- * This is a very simple example the form should really use the batch system for
- * stage operations because:
- *   * It can take a long time to install a project.
- *   * The post apply step should be run in a separate request.
+ * Provides a  simple form for installing a project that uses the batch system.
  *
  * @see \Drupal\automatic_updates\Form\UpdaterForm::submitForm()
  * @see \Drupal\automatic_updates\BatchProcessor::postApply()
  */
-class InstallerForm extends StageFormBase {
+class BatchInstallerForm extends FormBase {
 
-  public function __construct(protected readonly StageBase $stage, private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator) {}
+  public function __construct(protected StageBase $stage, private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator) {}
 
   public static function create(ContainerInterface $container) {
     return new static(
@@ -41,9 +38,6 @@ class InstallerForm extends StageFormBase {
   }
 
   public function buildForm(array $form, FormStateInterface $form_state) {
-    if ($cancelForm = $this->getCancelForm()) {
-      return $cancelForm;
-    }
     $form['project'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Project'),
@@ -58,11 +52,6 @@ class InstallerForm extends StageFormBase {
   }
 
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-    if ($button['#id'] === 'edit-cancel') {
-      return;
-    }
-    parent::validateForm($form, $form_state);
     $project_name = $form_state->getValue('project');
     // Confirm the input is a valid project name or URL.
     if (UrlHelper::isValid($project_name, TRUE)) {
@@ -104,20 +93,19 @@ class InstallerForm extends StageFormBase {
     $version = LegacyVersionUtility::convertToSemanticVersion($version);
     // We must use the Composer package name, not the Drupal project name.
     $package_name = "drupal/$project_name:$version";
-    try {
-      $this->stage->create();
-      $this->stage->require([$package_name]);
-      $this->stage->apply();
-      // Post apply should be run in a separate request. Running in same request here for simplicity.
-      // @see \Drupal\automatic_updates\BatchProcessor::postApply().
-      $this->stage->postApply();
-      $this->messenger()->addMessage($this->t('The project %project has been installed.', ['%project' => $project_name]));
-      $this->logger('pme')->notice('The project %project has been installed.', ['%project' => $project_name]);
-    }
-    catch (StageEventException $exception) {
-      $this->messenger()->addError($exception->getMessage());
-    }
-    $this->stage->destroy();
+    $batch = (new BatchBuilder())
+      ->setTitle($this->t('Downloading updates'))
+      ->setInitMessage($this->t('Preparing to install project'))
+      ->addOperation([BatchProcessor::class, 'begin'])
+      ->addOperation(
+        [BatchProcessor::class, 'require'],
+        [$package_name]
+      )
+      ->addOperation([BatchProcessor::class, 'apply'])
+      ->addOperation([BatchProcessor::class, 'cleanUp'])
+      ->toArray();
+
+    batch_set($batch);
   }
 
 }

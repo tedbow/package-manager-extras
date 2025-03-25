@@ -1,6 +1,12 @@
 pme.install_tab:
   route_name: pme.install
-  title: 'Install Projects'
+  title: 'Install Project'
+  base_route: system.modules_list
+  weight: 50
+
+pme.install_batch_tab:
+  route_name: pme.batch_install
+  title: 'Batch Install Project'
   base_route: system.modules_list
   weight: 50
 

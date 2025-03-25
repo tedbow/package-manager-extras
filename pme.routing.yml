@@ -6,6 +6,14 @@ pme.install:
   requirements:
     _permission: 'administer software updates'
 
+pme.batch_install:
+  path: '/admin/modules/pme-batch-install'
+  defaults:
+    _form: '\Drupal\pme\Form\BatchInstallerForm'
+    _title: 'Install Projects'
+  requirements:
+    _permission: 'administer software updates'
+
 pme.uninstall:
   path: '/admin/modules/pme-uninstall'
   defaults:
