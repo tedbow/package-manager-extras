@@ -99,6 +99,7 @@ class InstallerForm extends StageFormBase {
     $version = $install_release->getVersion();
     // Handle legacy version numbers, like 8.x-1.0.
     $version = LegacyVersionUtility::convertToSemanticVersion($version);
+    // We must use the Composer package name, not the Drupal project name.
     $package_name = "drupal/$project_name:$version";
     try {
       $this->stage->create();
