@@ -25,9 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @see \Drupal\automatic_updates\Form\UpdaterForm::submitForm()
  * @see \Drupal\automatic_updates\BatchProcessor::postApply()
  */
-class InstallForm extends StageFormBase {
-
-  use StatusCheckTrait;
+class InstallerForm extends StageFormBase {
 
   public function __construct(protected readonly StageBase $stage, private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator) {}
 

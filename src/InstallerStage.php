@@ -10,7 +10,7 @@ use Drupal\package_manager\StageBase;
 class InstallerStage extends StageBase {
 
   /**
-   * {@inheritdoc}
+   * ℹ️ Every stage must have a unique type.
    */
   protected string $type = 'pme:installer';
 
