@@ -94,8 +94,10 @@ class InstallerForm extends StageFormBase {
       $this->messenger()->addError($this->t('No installable releases found for the project %project.', ['%project' => $project_name]));
       return;
     }
+    // Install the most recent release.
     $install_release = reset($releases);
     $version = $install_release->getVersion();
+    // Handle legacy version numbers, like 8.x-1.0.
     $version = LegacyVersionUtility::convertToSemanticVersion($version);
     $package_name = "drupal/$project_name:$version";
     try {
