@@ -8,6 +8,7 @@ use Drupal\package_manager\StageBase;
 abstract class StageFormBase extends FormBase {
 
   protected readonly StageBase $stage;
+
   protected function getCancelForm(): ?array {
     if (!$this->stage->isAvailable()) {
       $form['message'] = [

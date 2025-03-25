@@ -5,10 +5,8 @@ namespace Drupal\pme\Form;
 use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\package_manager\ComposerInspector;
-use Drupal\package_manager\Exception\StageEventException;
 use Drupal\package_manager\PathLocator;
 use Drupal\package_manager\StageBase;
 use Drupal\pme\UninstallStage;
@@ -16,13 +14,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class UninstallForm extends StageFormBase {
 
-
   public function __construct(private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator, protected readonly StageBase $stage, private readonly ModuleExtensionList $extensionList, private readonly ModuleHandler $moduleHandler) {
 
   }
 
-  public static function create(ContainerInterface $container)
-  {
+  public static function create(ContainerInterface $container) {
     return new static(
       $container->get(ComposerInspector::class),
       $container->get(PathLocator::class),
@@ -32,14 +28,11 @@ class UninstallForm extends StageFormBase {
     );
   }
 
-
-  public function getFormId()
-  {
+  public function getFormId() {
     return 'pme.uninstall';
   }
 
-  public function buildForm(array $form, FormStateInterface $form_state)
-  {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     if ($cancelForm = $this->getCancelForm()) {
       return $cancelForm;
     }
@@ -76,8 +69,7 @@ class UninstallForm extends StageFormBase {
     return $form;
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state)
-  {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $packages = $form_state->getValue('uninstall');
     $packages = array_filter($packages);
     // @todo Determine if any of these packages will fail to be uninstalled
@@ -96,4 +88,5 @@ class UninstallForm extends StageFormBase {
     }
     $this->stage->destroy();
   }
+
 }

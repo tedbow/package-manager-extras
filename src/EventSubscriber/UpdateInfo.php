@@ -3,24 +3,20 @@
 namespace Drupal\pme\EventSubscriber;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\package_manager\ComposerInspector;
 use Drupal\package_manager\Event\StatusCheckEvent;
 use Drupal\package_manager\InstalledPackage;
 use Drupal\package_manager\PathLocator;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UpdateInfo implements EventSubscriberInterface {
 
   use StringTranslationTrait;
 
-
   public function __construct(private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator) {
   }
 
-  public static function getSubscribedEvents(): array
-  {
+  public static function getSubscribedEvents(): array {
     return [
       StatusCheckEvent::class => 'onStatusCheck',
     ];
@@ -34,7 +30,7 @@ class UpdateInfo implements EventSubscriberInterface {
 
     $staged = $this->composerInspector->getInstalledPackagesList($event->stage->getStageDirectory());
     $changed_stage_packages = $staged->getPackagesWithDifferentVersionsIn($active)->getArrayCopy();
-    $messages =[];
+    $messages = [];
     foreach ($changed_stage_packages as $changed_stage_package) {
       assert($changed_stage_package instanceof InstalledPackage);
       $active_package = $active[$changed_stage_package->name];

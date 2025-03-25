@@ -11,19 +11,16 @@ use Drupal\package_manager\Event\StatusCheckEvent;
 use Drupal\package_manager\InstalledPackage;
 use Drupal\package_manager\LegacyVersionUtility;
 use Drupal\package_manager\PathLocator;
-use Drupal\package_manager\ProjectInfo;
-use Drupal\project_browser\ComposerInstaller\Installer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ProjectBrowserValidator implements EventSubscriberInterface
-{
+class ProjectBrowserValidator implements EventSubscriberInterface {
 
   use StringTranslationTrait;
 
-  public function __construct(private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator){
+  public function __construct(private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator) {
   }
 
-  public static function getSubscribedEvents(): array{
+  public static function getSubscribedEvents(): array {
     return [
       StatusCheckEvent::class => 'validateProjectStatus',
       PreApplyEvent::class => 'validateProjectStatus',
@@ -51,10 +48,12 @@ class ProjectBrowserValidator implements EventSubscriberInterface
                 '@project' => $project_name,
                 '@version' => $package->version,
               ]
-            )],
+            ),
+          ],
           );
         }
       }
     }
   }
+
 }
