@@ -41,19 +41,18 @@ class ProjectBrowserValidator implements EventSubscriberInterface {
 
   public function validateProjectStatus(PreOperationStageEvent $event): void {
     $stage = $event->stage;
+    // Return if there is no staged update or the stage is not Project Browser.
     if (!$stage->stageDirectoryExists() || $stage->getType() !== 'project_browser.installer') {
       return;
     }
-    $active = $this->composerInspector->getInstalledPackagesList($this->pathLocator->getProjectRoot());
-    $newPackages = $this->composerInspector->getInstalledPackagesList($stage->getStageDirectory())->getPackagesNotIn($active);
+    $activePackages = $this->composerInspector->getInstalledPackagesList($this->pathLocator->getProjectRoot());
+    $stagedPackages = $this->composerInspector->getInstalledPackagesList($stage->getStageDirectory());
+    $newPackages = $stagedPackages->getPackagesNotIn($activePackages);
     foreach ($newPackages->getArrayCopy() as $package) {
       assert($package instanceof InstalledPackage);
       // We only care about drupal projects.
       if ($project_name = $package->getProjectName()) {
-        // Handle legacy versions, such as 8.x-1.5.
-        $version = LegacyVersionUtility::convertToSemanticVersion($package->version);
-        $stability = VersionParser::parseStability($version);
-        if ($stability !== 'stable') {
+        if (VersionParser::parseStability($package->version) !== 'stable') {
           // By adding an error we can ensure the package will not be installed
           // @see Drupal\package_manager\StageBase::apply()
           $event->addError([
