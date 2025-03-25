@@ -41,8 +41,9 @@ class ProjectBrowserValidator implements EventSubscriberInterface {
 
   public function validateProjectStatus(PreOperationStageEvent $event): void {
     $stage = $event->stage;
-    // Return if there is no staged update or the stage is not Project Browser.
-    if (!$stage->stageDirectoryExists() || $stage->getType() !== 'project_browser.installer') {
+    // Return if there is no staged update or the stage is not Project Browser or ours.
+    if (!$stage->stageDirectoryExists() ||
+        !in_array($stage->getType(), ['project_browser.installer', 'pme:installer'], TRUE)) {
       return;
     }
     $activePackages = $this->composerInspector->getInstalledPackagesList($this->pathLocator->getProjectRoot());
