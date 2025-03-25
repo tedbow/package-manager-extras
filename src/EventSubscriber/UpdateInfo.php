@@ -9,6 +9,18 @@ use Drupal\package_manager\InstalledPackage;
 use Drupal\package_manager\PathLocator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Provides a subscriber to display all updates in the staging directory.
+ *
+ * This subscriber checks for any packages that have changed versions or
+ * been added compared to the active directory.
+ *
+ * Forms that use Package Manager should run status checks before applying
+ * updates to allow modules add extra information for the user about pending
+ * updates.
+ *
+ * @see \Drupal\automatic_updates\Form\UpdateReady::buildForm()
+ */
 class UpdateInfo implements EventSubscriberInterface {
 
   use StringTranslationTrait;
@@ -27,8 +39,9 @@ class UpdateInfo implements EventSubscriberInterface {
       return;
     }
     $active = $this->composerInspector->getInstalledPackagesList($this->pathLocator->getProjectRoot());
-
     $staged = $this->composerInspector->getInstalledPackagesList($event->stage->getStageDirectory());
+
+    // Inform the user of any packages that changed versions.
     $changed_stage_packages = $staged->getPackagesWithDifferentVersionsIn($active)->getArrayCopy();
     $messages = [];
     foreach ($changed_stage_packages as $changed_stage_package) {
@@ -47,6 +60,7 @@ class UpdateInfo implements EventSubscriberInterface {
       $event->addWarning($messages, $this->t('The following packages have changed versions in the staging directory:'));
     }
     $messages = [];
+    // Inform the user of any packages that were add.
     $new_stage_packages = $staged->getPackagesNotIn($active)->getArrayCopy();
     foreach ($new_stage_packages as $new_stage_package) {
       assert($new_stage_package instanceof InstalledPackage);

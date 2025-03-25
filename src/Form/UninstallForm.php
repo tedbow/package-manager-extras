@@ -12,6 +12,17 @@ use Drupal\package_manager\StageBase;
 use Drupal\pme\UninstallStage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Provides a very simple form for uninstall projects.
+ *
+ * This is a very simple example the form should really use the batch system for
+ * stage operations because:
+ *   * It can take a long time to install run package manager operations.
+ *   * The post apply step should be run in a separate request.
+ *
+ * @see \Drupal\automatic_updates\Form\UpdaterForm::submitForm()
+ * @see \Drupal\automatic_updates\BatchProcessor::postApply()
+ */
 class UninstallForm extends StageFormBase {
 
   public function __construct(private readonly ComposerInspector $composerInspector, private readonly PathLocator $pathLocator, protected readonly StageBase $stage, private readonly ModuleExtensionList $extensionList, private readonly ModuleHandler $moduleHandler) {
@@ -43,25 +54,25 @@ class UninstallForm extends StageFormBase {
       if (!empty($module->info['project'])) {
         $package = $packageList->getPackageByDrupalProjectName($module->info['project']);
         if (!$package) {
+          // This module is not installed via composer.
           continue;
         }
         if (!$this->moduleHandler->moduleExists($module_name)) {
           $uninstallable_packages[$package->name] = "{$module->info['project']} ($package->name)";
         }
         else {
+          // If the module is enabled, so we can't uninstall it.
           $required_packages[$package->name] = $package->name;
         }
       }
     }
     $uninstallable_packages = array_diff_key($uninstallable_packages, $required_packages);
-    // Make a group checkboxes for $uninstallable_projects
     $form['uninstall'] = [
       '#type' => 'checkboxes',
       '#title' => 'Uninstall',
       '#options' => $uninstallable_packages,
       '#required' => TRUE,
     ];
-    // Add a submit button.
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Uninstall'),
@@ -69,11 +80,15 @@ class UninstallForm extends StageFormBase {
     return $form;
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $packages = $form_state->getValue('uninstall');
-    $packages = array_filter($packages);
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
     // @todo Determine if any of these packages will fail to be uninstalled
     //   because they are required by other packages.
+  }
+
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    assert($this->stage instanceof UninstallStage);
+    $packages = array_filter($form_state->getValue('uninstall'));
     try {
       $this->stage->create();
       $this->stage->uninstall($packages);

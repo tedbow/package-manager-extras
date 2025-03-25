@@ -10,6 +10,6 @@ pme.uninstall:
   path: '/admin/modules/pme-uninstall'
   defaults:
     _form: '\Drupal\pme\Form\UninstallForm'
-    _title: 'Install Projects'
+    _title: 'Uninstall Projects'
   requirements:
     _permission: 'administer software updates'

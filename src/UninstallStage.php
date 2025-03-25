@@ -4,6 +4,9 @@ namespace Drupal\pme;
 
 use Drupal\package_manager\StageBase;
 
+/**
+ * This is very simple stage for uninstalling projects.
+ */
 class UninstallStage extends StageBase {
 
   protected string $type = 'pme:uninstall';
