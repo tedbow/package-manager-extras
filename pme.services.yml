@@ -10,3 +10,6 @@ services:
   Drupal\pme\UninstallStage :
     calls:
       - [ 'setLogger', [ '@logger.channel.pme' ]]
+  Drupal\pme\EventSubscriber\UpdateInfo:
+    tags:
+      - { name: event_subscriber }
